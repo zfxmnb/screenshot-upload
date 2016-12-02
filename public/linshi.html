@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title> </title>
+</head>
+<body>
+    <video src="" autoplay id="video" controls></video>
+    <script>    
+            var video=document.getElementById('video');
+            navigator.getUserMedia=navigator.mozGetUserMedia||navigator.webkitGetUserMedia||navigator.msGetUserMedia||navigator.getUserMedia;
+            window.URL=window.URL||window.webkitURL||window.mozURL||window.msURL;
+            if(navigator.getUserMedia){
+                var err=function(){
+                    console.log("无法使用摄像功能");
+                }
+               navigator.getUserMedia({"video":true},function(stream){
+                if(video.mozSrcObject!==undefined){
+                        video.mozSrcObject=stream;
+                }else{
+                        video.src=(window.URL&&window.URL.createObjectURL(stream))||stream;
+                }
+               },err);
+            }
+    </script>
+</body>
+</html>

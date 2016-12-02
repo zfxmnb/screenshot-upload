@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>login</title>
+    <script src="/javascripts/jquery-1.11.1.js"></script>
+    <style>
+        form{
+            width:200px;
+            padding:20px;
+            border:1px solid #ccc;
+            border-radius:5px;
+            margin:50px auto;
+        }
+        form>div{
+            margin:5px 15px;
+        }
+        form h3{
+            text-align: center;
+        }
+        form a{
+            display: block;
+            float:right;
+            color:gray;
+        }
+        form .tips{
+            color:red;
+            height:16px;
+        }
+        form .msg{
+            color:red;
+            height:15px;
+        }
+    </style>
+</head>
+<body>
+    <form action="" id="login">
+        <h3>用户登录</h3>
+        <div><label for="">username</label><input type="text" name="username" class="name" placeholder="4~11个字母"><div class="tips userTip"></div></div>
+        <div><label for="">password</label><input type="password" name="password" class="pwd" placeholder="6~14个字符"><div class="tips pwdTip"></div></div>
+        <div class="options"><input type="submit" value="login"><a href="javascript:$('#login').hide();$('#signIn').show()">注册>></a></div>
+        <div class="msg"></div>
+    </form>
+    <form action="javascript:void(0);" id="signIn" style="display:none;">
+        <h3>用户注册</h3>
+        <div><label for="">username</label><input type="text" name="username" class="name" placeholder="4~11个字母"><div class="tips userTip"></div></div>
+        <div><label for="">password</label><input type="password" name="password" class="pwd" placeholder="6~14个字符"><div class="tips pwdTip"></div></div>
+        <div><label for="">repassword</label><input type="password" class="repwd" placeholder="与第一次一致"></div>
+        <div class="options"><input type="submit" value="sign in"><a href="javascript:$('#signIn').hide();$('#login').show();">登录>></a></div>
+        <div class="msg"></div>
+    </form>
+    <script>
+    var user=new RegExp("^[a-z]*$"); 
+    $("#login input[type='submit']").click(function(){
+        var ele=$("#login");
+        if(vali(ele)){
+            $.ajax({url:"/sign",type:"POST",
+                dataType:"JSON",
+                data:ele.serialize()+"&type=login",
+                success:function(data){
+                    ele.find(".msg").html(data.mas)
+                }
+            });
+        }
+        return false;
+    });
+    $("#signIn input[type='submit']").click(function(){
+        var ele=$("#signIn");
+        if(vali(ele)){
+            $.ajax({url:"/sign",type:"POST",
+                dataType:"JSON",
+                data:ele.serialize()+"&type=signin",
+                success:function(data){
+
+                    ele.find(".msg").html(data.mas)
+                }
+            });
+        }
+        return false;
+    })
+    function vali(ele){
+        if(!(user.test(ele.find(".name").val())&&ele.find(".name").val().length>3&&ele.find(".name").val().length<12&&ele.find(".pwd").val().length>5&&ele.find(".pwd").val().length<15)){
+            if(!user.test(ele.find(".name").val())||!(ele.find(".name").val().length>3&&ele.find(".name").val().length<12)){
+                ele.find(".userTip").html("非正确格式用户名");
+            }else{
+                ele.find(".userTip").empty();
+            }
+            if(!(ele.find(".pwd").val().length>5&&ele.find(".pwd").val().length<15)){
+                ele.find(".pwdTip").html("密码6~14个字符");
+            }else{
+                 if(ele.find(".repwd").length>0&&ele.find(".pwd").val()!=ele.find(".repwd").val()){
+                    ele.find(".pwdTip").html("两次密码输入不匹配");
+                }else{
+                    ele.find(".pwdTip").empty();
+                }
+            }
+            return false;
+        }else{
+            return true;
+        }
+    }
+    </script>
+</body>
+</html>
