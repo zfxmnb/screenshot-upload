@@ -38,7 +38,7 @@
         <h3>用户登录</h3>
         <div><label for="">username</label><input type="text" name="username" class="name" placeholder="4~11个字母"><div class="tips userTip"></div></div>
         <div><label for="">password</label><input type="password" name="password" class="pwd" placeholder="6~14个字符"><div class="tips pwdTip"></div></div>
-        <div class="options"><input type="submit" value="login"><a href="javascript:$('#login').hide();$('#signIn').show()">注册>></a></div>
+        <div class="options"><input type="submit" value="login"><a href="##" onclick="javascript:$('#login').hide();$('#signIn').show()">注册>></a></div>
         <div class="msg"></div>
     </form>
     <form action="javascript:void(0);" id="signIn" style="display:none;">
@@ -46,7 +46,7 @@
         <div><label for="">username</label><input type="text" name="username" class="name" placeholder="4~11个字母"><div class="tips userTip"></div></div>
         <div><label for="">password</label><input type="password" name="password" class="pwd" placeholder="6~14个字符"><div class="tips pwdTip"></div></div>
         <div><label for="">repassword</label><input type="password" class="repwd" placeholder="与第一次一致"></div>
-        <div class="options"><input type="submit" value="sign in"><a href="javascript:$('#signIn').hide();$('#login').show();">登录>></a></div>
+        <div class="options"><input type="submit" value="sign in"><a href="##" onclick="javascript:$('#signIn').hide();$('#login').show();">登录>></a></div>
         <div class="msg"></div>
     </form>
     <script>
@@ -58,7 +58,10 @@
                 dataType:"JSON",
                 data:ele.serialize()+"&type=login",
                 success:function(data){
-                    ele.find(".msg").html(data.mas)
+                    ele.find(".msg").html(data.mas);
+                    if(data.msg=="allow"||data.msg=="logged"){
+                        window.location.href="/";
+                    }
                 }
             });
         }
