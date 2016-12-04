@@ -167,13 +167,13 @@
             border:1px solid #fff;
             border-radius:5px;
             height:26px;
-            width:19%;
+            width:18.5%;
             text-align:center;
             line-height: 26px;
             font-size: 16px;
-            padding:0 10px;
             color:#333;
             cursor:pointer;
+            vertical-align: top;
             text-shadow: 0 0 5px #fff;
         }
         .user_num{
@@ -309,7 +309,7 @@ var chatType,id,name;
         $("#userList .user_num").html("在线人数："+data.onlineCount);
         for(key in data.onlineUsers){
             if(key!=id)
-                $("#userList ul").prepend("<li value="+key+">"+data.onlineUsers[key]+" <small>[<i>"+key+"</i>]</small></li>");
+                $("#userList ul").prepend("<li value="+key+">"+data.onlineUsers[key]+"</li>");
             else
                 $("#userList .self").html("<span>name:</span><big>"+data.onlineUsers[key]+"</big><br /><span>id:</span>"+key)
         }
@@ -321,7 +321,7 @@ var chatType,id,name;
         $("#userList .user_num").html("在线人数："+data.onlineCount);
         for(key in data.onlineUsers){
             if(key!=id)
-                $("#userList ul").prepend("<li value="+key+">"+data.onlineUsers[key]+" <small>[<i>"+key+"</i>]</small></li>");
+                $("#userList ul").prepend("<li value="+key+">"+data.onlineUsers[key]+"</li>");
             else
                 $("#userList .self").html("<span>name:</span><big>"+data.onlineUsers[key]+"</big><br /><span>id:</span>"+key)
         }
@@ -334,7 +334,6 @@ var chatType,id,name;
         var msg=data[2];
 
         eventfn(userid,username);
-        
         if(msg.video){
             var s=msg.video;
                 $("#videoCon").show();
@@ -385,7 +384,7 @@ var chatType,id,name;
 //}
 function event(){
     $("#userList ul li").off();
-    $("#userList ul li").on("dblclick",function(){
+    $("#userList ul li").on("click",function(){
             var userid=$(this).attr("value");
             var username=$(this).html();
         if(userid!=id)
@@ -405,7 +404,7 @@ function eventfn(userid,username){
                         '<button class="submit">提交</button>'+
                     '</div>'+
                 '</li>');
-        }   
+        }
 
          $("#tab_title .title").each(function(index){
             $(this).off();
@@ -415,7 +414,7 @@ function eventfn(userid,username){
                 $("#chat_contents>li").removeClass("active");
                 $("#chat_contents>li").eq(index).addClass("active");
                 if($(this).find(".text").html()!="commonality")
-                    $("#tab_title h1").html($(this).find(".text").html()+"<button class='videoStart' userId='"+$(this).attr("userId")+"'>视频聊天</button>");
+                    $("#tab_title h1").html($(this).find(".text").html());
                 else
                     $("#tab_title h1").html($(this).find(".text").html());
                 video($(".videoStart"));
