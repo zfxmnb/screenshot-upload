@@ -59,7 +59,7 @@
                 data:ele.serialize()+"&type=login",
                 success:function(data){
                     ele.find(".msg").html(data.mas);
-                    if(data.msg=="allow"||data.msg=="logged"){
+                    if(data.mas=="allow"||data.mas=="logged"){
                         window.location.href="/";
                     }
                 }
@@ -74,7 +74,6 @@
                 dataType:"JSON",
                 data:ele.serialize()+"&type=signin",
                 success:function(data){
-
                     ele.find(".msg").html(data.mas)
                 }
             });

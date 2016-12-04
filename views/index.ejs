@@ -259,7 +259,6 @@
                 <div class='user_num'></div>
             </div>
             <ul>
-                
             </ul>
         </div>
         <div class="chat_container">
@@ -284,23 +283,24 @@
             <video src="" id="video"></video>
             <video src="" id="videoSelf"></video>
         </div>
-        <div id="login">
+        <% include logout.ejs %>
+        <!-- <div id="login">
             <div><label for="username">昵称：</label><span>(3~8个字符)</span></div>
             <div><input type="text" id="username" name="chatusername"></div>
             <div><button id="confirm">确定</button></div>
         </div>
-        <div id="bg"></div>
+        <div id="bg"></div> -->
 </body>
 <script>
 var socket = io();
 var chatType,id,name;
-$("#confirm").click(function(){
-    if($("#username").val().length<3||$("#username").val().length>8)
-        return;
-    id="c"+parseInt(Math.random()*10000);
-    name=$("#username").val();
-    $("#login,#bg").hide();
-
+//$("#confirm").click(function(){
+    // if($("#username").val().length<3||$("#username").val().length>8)
+    //     return;
+    id="ID<%= username%>";
+    name="<%= username%>";
+    // $("#login,#bg").hide();
+//if(name!="object Object"){
     socket.emit('login', {"userid":id,"username":name});
 
     socket.on('login', function (data) {
@@ -316,7 +316,7 @@ $("#confirm").click(function(){
         event();
     });
     socket.on('logout', function(data) {
-        $('#chat_contents .commonality .chat_content').append("<div class='tips'><span>欢迎用户"+data.user+"加入房间</span></div>");
+        //$('#chat_contents .commonality .chat_content').append("<div class='tips'><span>欢迎用户"+data.user+"加入房间</span></div>");
         $("#userList ul").html("");
         $("#userList .user_num").html("在线人数："+data.onlineCount);
         for(key in data.onlineUsers){
@@ -382,7 +382,7 @@ $("#confirm").click(function(){
         $(".commonality_title").trigger("click");
         ele.scrollTop(ele.find(".chat_content").height()-ele.height());
     });
-});
+//}
 function event(){
     $("#userList ul li").off();
     $("#userList ul li").on("dblclick",function(){

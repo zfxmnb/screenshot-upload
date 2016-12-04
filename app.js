@@ -8,6 +8,7 @@ var bodyParser = require('body-parser');
 var routes = require('./routes/index');
 var login = require('./routes/login');
 var sign = require('./routes/sign');
+var test = require('./routes/test');
 
 
 var app = express();
@@ -27,6 +28,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', routes);
 app.use('/login', login);
 app.use('/sign', sign);
+app.use('/test', test);
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   var err = new Error('Not Found');
@@ -92,7 +94,7 @@ var onlineCount = 0;
 
 var io = require('socket.io')(server);
 io.on('connection',function(socket){
-	console.log("new msg");
+	//console.log("new msg");
 
 	socket.on('chat message', function (from,to,data) {
       var json=[];
@@ -122,7 +124,7 @@ io.on('connection',function(socket){
         }
         //向所有客户端广播用户加入
         io.emit('login', {onlineUsers:onlineUsers, onlineCount:onlineCount, user:obj.username});
-        console.log(obj.username+'加入了聊天室');
+        //console.log(obj.username+'加入了聊天室');
     });
     //监听用户退出
     socket.on('disconnect', function(){
@@ -138,7 +140,6 @@ io.on('connection',function(socket){
             io.emit('logout', {onlineUsers:onlineUsers, onlineCount:onlineCount, user:obj});
         }
     });
-
 });
 /**
  * Normalize a port into a number, string, or false.
