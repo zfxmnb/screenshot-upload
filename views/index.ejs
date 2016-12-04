@@ -390,7 +390,6 @@ function event(){
             var username=$(this).html();
         if(userid!=id)
             eventfn(userid,username);
-        
     });
 }
 function eventfn(userid,username){
@@ -442,7 +441,6 @@ function eventfn(userid,username){
                     socket.emit('private message',id,userid,{video:video.src});
                    },err);
                 }
-                
             })
          }
          $("#tab_title").find("."+userid).trigger("click");
@@ -462,20 +460,22 @@ function submit(){
         $(".submit").off()
         $('.submit').on("click",function(){
                 var value=$(this).parent().find(".input").val();
-                var to=$(this).parents("li").attr("value");
-                if(to=="commonality")
-                socket.emit('chat message',id,to,value);
-                else{
-                    socket.emit('private message',id,to,value);
-                    var time=new Date();
-                    var h=time.getHours(),m=time.getMinutes(),s=time.getSeconds();
-                    var ele=$('.'+to);
-                    ele.find(".chat_content").append("<div class='me'>"+
-                        "<div class='text'>"+h+":"+m+":"+s+"</div>"+
-                        "<span class='username'>"+name+"</span><span class='msg'>"+value+"</span></div>");
-                    ele.scrollTop(ele.find(".chat_content").height()-ele.height());
+                if(value!=""){
+                    var to=$(this).parents("li").attr("value");
+                    if(to=="commonality")
+                    socket.emit('chat message',id,to,value);
+                    else{
+                        socket.emit('private message',id,to,value);
+                        var time=new Date();
+                        var h=time.getHours(),m=time.getMinutes(),s=time.getSeconds();
+                        var ele=$('.'+to);
+                        ele.find(".chat_content").append("<div class='me'>"+
+                            "<div class='text'>"+h+":"+m+":"+s+"</div>"+
+                            "<span class='username'>"+name+"</span><span class='msg'>"+value+"</span></div>");
+                        ele.scrollTop(ele.find(".chat_content").height()-ele.height());
+                    }
+                    $('.input').val('');
                 }
-                $('.input').val('');
                 return false;
         });
 }
