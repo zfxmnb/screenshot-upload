@@ -4,7 +4,7 @@ var app=express();
 var sign = require('singleLogin');
 
 router.get('/', function(req, res, next) {
-	sign.verification(req,res,"/login",function(collection,userinfo){
+	sign.verification(req,res,"/login","/",function(collection,userinfo){
 		res.render("index",userinfo);
 	})
 });

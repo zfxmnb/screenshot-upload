@@ -50,6 +50,14 @@
         <div class="msg"></div>
     </form>
     <script>
+    function getQueryString(name) {
+        var reg = new RegExp('(^|&)' + name + '=([^&]*)(&|$)', 'i');
+        var r = window.location.search.substr(1).match(reg);
+        if (r != null) {
+            return unescape(r[2]);
+        }
+        return null;
+    }
     var user=new RegExp("^[a-z]*$"); 
     $("#login input[type='submit']").click(function(){
         var ele=$("#login");
@@ -60,7 +68,7 @@
                 success:function(data){
                     ele.find(".msg").html(data.mas);
                     if(data.mas=="allow"||data.mas=="logged"){
-                        window.location.href="/";
+                        window.location.href=getQueryString("target")||"/";
                     }
                 }
             });
