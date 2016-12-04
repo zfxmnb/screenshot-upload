@@ -19,13 +19,13 @@ router.post('/', function(req, res, next) {
 	 					var user=new RegExp("^[a-z]*$");
 	 					if(user.test(data.username)&&data.username.length>3&&data.username.length<12&&data.password.length>5&&data.password.length<15){
 	 						collection.insert({username:data.username,password:data.password});
-	 						res.end(JSON.stringify({success:true,mas:"register success"}));
+	 						res.end(JSON.stringify({success:true,msg:"register success"}));
 	 					}else{
-	 						res.end(JSON.stringify({success:false,mas:"register failed"}));
+	 						res.end(JSON.stringify({success:false,msg:"register failed"}));
 	 					}
 	 					db.close();
 	 				}else{
-	 					res.end(JSON.stringify({success:false,mas:"registered"}));
+	 					res.end(JSON.stringify({success:false,msg:"registered"}));
 	 					db.close();
 	 				}
 	 			}else if(data.type=="login"){
@@ -78,7 +78,7 @@ router.post('/', function(req, res, next) {
 												   					'tempId='+tempId+';path=/;domain=.'+domain,
 												   					'clientId='+clientId+';path=/;domain=.'+domain+';max-age=83400']);
 												   				//返回信息
-												   				res.end(JSON.stringify({success:true,mas:"allow"}));
+												   				res.end(JSON.stringify({success:true,msg:"allow"}));
 												   				collection.remove({$or:[
 												   					{username:data.username,password:data.password},
 												   					{ipAddress:ipAddress,macAddress:mac,userAgent:userAgent}
@@ -115,7 +115,7 @@ router.post('/', function(req, res, next) {
 												   					'tempId='+tempId+';path=/;domain=.'+domain,
 												   					'clientId='+docs.clientId+';path=/;domain=.'+domain+';max-age=83400']);
 											   				//返回信息
-											   				res.end(JSON.stringify({success:true,mas:"allow"}));
+											   				res.end(JSON.stringify({success:true,msg:"allow"}));
 											   				//插入新数据到登录表
 											   				collection.insert({
 											   					username:data.username,
@@ -137,7 +137,7 @@ router.post('/', function(req, res, next) {
 												   					'tempId='+docs.tempId+';path=/;domain=.'+domain,
 												   					'clientId='+docs.clientId+';path=/;domain=.'+domain+';max-age=83400']);
 											   				//返回信息
-											   				res.end(JSON.stringify({success:true,mas:"logged"}));
+											   				res.end(JSON.stringify({success:true,msg:"logged"}));
 											   				更新最新登陆时间
 											   				collection.updateOne(
 															  {
@@ -164,14 +164,12 @@ router.post('/', function(req, res, next) {
 					    });
 					}else{
 						//密码或者用户名错误
-						res.end(JSON.stringify({success:false,mas:"password Or username error"}));
+						res.end(JSON.stringify({success:false,msg:"password Or username error"}));
  						db.close();
 					}
-				}else if(data.type=="logout"){
-
  				}else{
  					//已经注册
- 					res.end(JSON.stringify({success:false,mas:"option error"}));
+ 					res.end(JSON.stringify({success:false,msg:"option error"}));
  					db.close();
  				}
  			}

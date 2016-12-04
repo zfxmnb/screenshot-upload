@@ -15,7 +15,7 @@ router.get('/', function(req, res, next) {
 		    if (err)  throw err;
 		   	else{
 		   		if(req.query.type=="logout"){
-		   			res.end(JSON.stringify({success:true,mas:"logout"}));
+		   			res.end(JSON.stringify({success:true,msg:"logout"}));
 					collection.remove(
 	   					{ipAddress:ipAddress,macAddress:mac,userAgent:userAgent},function(err){
 	   						db.close();
