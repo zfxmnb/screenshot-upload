@@ -6,6 +6,7 @@ var sign = require('singleLogin');
 var macObj = require('getmac');
 var uuid = require('uuid');
 /* GET home page. */
+
 router.post('/', function(req, res, next) {
  	sign.auth("sign",function(collection){
  		var db=this;
