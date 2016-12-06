@@ -7,11 +7,16 @@ var bodyParser = require('body-parser');
 var config = require('config');
 var setTime = require('settime');
 
+var mongo=require("mongodb");
+var host="localhost";
+var server=new mongo.Server(host,27017,{auto_reconnect:true});//创建数据库所在的服务器服务器
+var db=new mongo.Db("test",server,{safe:true});
+
 var index = require('./routes/index');
 var login = require('./routes/login');
 var sign = require('./routes/sign');
 var test = require('./routes/test');
-
+var msg = require('./routes/msg');
 
 var app = express();
 
@@ -32,6 +37,7 @@ app.use('/index', index);
 app.use('/login', login);
 app.use('/sign', sign);
 app.use('/test', test);
+app.use('/msg', msg);
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   var err = new Error('Not Found');
@@ -90,6 +96,8 @@ server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
 
+
+
 //在线用户
 var onlineUsers = {};
 //当前在线人数
@@ -107,14 +115,37 @@ io.on('connection',function(socket){
       json.push(data);
 	    io.emit('chat message',json);
 	});
-
-	socket.on('private message', function (from,to,data) {
+  socket.on('private message', function (from,to,data) {
     var json=[];
     json.push(onlineUsers[from]);
     json.push(from);
     json.push(data);
-		io.emit('to'+to,json);
-	})
+  	io.emit('to'+to,json);
+
+    if(data.indexOf("/**/")==-1&&data.indexOf("/##/")==-1){
+    db.open(function (err,db) {
+          db.collection("messages",function(err,collection){
+            if(err) throw err;
+              else{
+                  collection.findOne({$or:[{rel:from+"&"+to},{rel:to+"&"+from}]},function (err,docs){
+                    if(err) throw err;
+                    else{
+                      if(docs){
+                        collection.updateOne({rel:docs.rel},{$set:{massage:docs.massage+"/**/"+new Date().getTime()+"/##/"+from+"&"+to+"/##/"+data}},function(){
+                          db.close();
+                        });
+                      }else{
+                        collection.insert({rel:from+"&"+to,massage:new Date().getTime()+"/##/"+from+"&"+to+"/##/"+data},function(){
+                          db.close();
+                        });
+                      }
+                    }
+                  })
+                }
+            	})
+            });
+      }
+  });
 
     //监听新用户加入
     socket.on('login', function(obj){

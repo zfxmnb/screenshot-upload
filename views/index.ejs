@@ -250,6 +250,10 @@
             right:0;
             bottom:0;
         }
+        .history{
+            cursor:pointer;
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
@@ -284,23 +288,15 @@
             <video src="" id="videoSelf"></video>
         </div>
         <% include logout.ejs %>
-        <!-- <div id="login">
-            <div><label for="username">昵称：</label><span>(3~8个字符)</span></div>
-            <div><input type="text" id="username" name="chatusername"></div>
-            <div><button id="confirm">确定</button></div>
-        </div>
-        <div id="bg"></div> -->
+       
 </body>
 <script>
+(function(){
 var socket = io();
 var chatType,id,name;
-//$("#confirm").click(function(){
-    // if($("#username").val().length<3||$("#username").val().length>8)
-    //     return;
-    id="ID<%= username%>";
+
+    id="<%= username%>";
     name="<%= username%>";
-    // $("#login,#bg").hide();
-//if(name!="object Object"){
     socket.emit('login', {"userid":id,"username":name});
 
     socket.on('login', function (data) {
@@ -316,7 +312,6 @@ var chatType,id,name;
         event();
     });
     socket.on('logout', function(data) {
-        //$('#chat_contents .commonality .chat_content').append("<div class='tips'><span>欢迎用户"+data.user+"加入房间</span></div>");
         $("#userList ul").html("");
         $("#userList .user_num").html("在线人数："+data.onlineCount);
         for(key in data.onlineUsers){
@@ -327,40 +322,22 @@ var chatType,id,name;
         }
         event();
     });
-    submit();
     socket.on('to'+id, function(data) {
         var username=data[0];
         var userid=data[1];
         var msg=data[2];
 
         eventfn(userid,username);
-        if(msg.video){
-            var s=msg.video;
-                $("#videoCon").show();
-                var video=document.getElementById('video');
-                navigator.getUserMedia=navigator.mozGetUserMedia||navigator.webkitGetUserMedia||navigator.msGetUserMedia||navigator.getUserMedia;
-                window.URL=window.URL||window.webkitURL||window.mozURL||window.msURL;
-                if(navigator.getUserMedia){
-                   var err=function(){
-                        console.log("无法使用摄像功能");
-                    }
-                   navigator.getUserMedia({"video":false,"audio":true},function(stream){
-                        if(video.mozSrcObject!==undefined){
-                            video.mozSrcObject=s;
-                        }else{
-                            video.src=(window.URL&&window.URL.createObjectURL(s))||s;
-                        }
-                   },err);
-                }
-        }else{
-            var time=new Date();
-            var h=time.getHours(),m=time.getMinutes(),s=time.getSeconds();
-            var ele=$('.'+userid);
-            ele.find(".chat_content").append("<div class='other'>"+
-                "<div class='text'>"+h+":"+m+":"+s+"</div>"+
-                "<span class='username'>"+username+"</span><span class='msg'>"+msg+"</span></div>");
-            ele.scrollTop(ele.find(".chat_content").height()-ele.height());
-        }
+        var time=new Date();
+         var y=1900+time.getYear(),M=time.getMonth()+1,d=time.getDate();
+        var h=time.getHours(),
+        m=time.getMinutes()<10?"0"+time.getMinutes():time.getMinutes(),
+        s=time.getSeconds()<10?"0"+time.getSeconds():time.getSeconds();
+        var ele=$('.'+userid);
+        ele.find(".chat_content").append("<div class='other'>"+
+            "<div class='text'>"+y+"-"+M+"-"+d+"  "+h+":"+m+":"+s+"</div>"+
+            "<span class='username'>"+username+"</span><span class='msg'>"+msg+"</span></div>");
+        ele.scrollTop(ele.find(".chat_content").height()-ele.height());
     });
 
     socket.on('chat message', function (data) {
@@ -373,14 +350,18 @@ var chatType,id,name;
             var c="other";
         }
         var time=new Date();
-        var h=time.getHours(),m=time.getMinutes(),s=time.getSeconds();
+        var y=1900+time.getYear(),M=time.getMonth()+1,d=time.getDate();
+         var h=time.getHours(),
+            m=time.getMinutes()<10?"0"+time.getMinutes():time.getMinutes(),
+            s=time.getSeconds()<10?"0"+time.getSeconds():time.getSeconds();
         var ele=$(".commonality");
         ele.find('.chat_content').append("<div class="+c+">"+
-            "<div class='text'>"+h+":"+m+":"+s+"</div>"+
+            "<div class='text'>"+y+"-"+M+"-"+d+"  "+h+":"+m+":"+s+"</div>"+
             "<span class='username'>"+username+"</span><span class='msg'>"+msg+"</span></div>");
         $(".commonality_title").trigger("click");
         ele.scrollTop(ele.find(".chat_content").height()-ele.height());
     });
+    emit();
 //}
 function event(){
     $("#userList ul li").off();
@@ -398,7 +379,7 @@ function eventfn(userid,username){
             $("#tab_title ul").append("<li class='title "+userid+"' userId='"+userid+"'><span class='text'>"+username+"</span><span class='close'>x</span></li>");
 
             $("#chat_contents").append('<li class="'+userid+'" value="'+userid+'">'+
-                    '<div class="chat_content"><div class="tips"><span>可以和'+username+'聊天了</span></div></div>'+
+                    '<div class="chat_content"><div class="tips"><span>可以和'+username+'聊天了</span></div><div class="tips history"><span>查看聊天历史</span></div></div>'+
                     '<div class="chat_submit">'+
                         '<input type="text" class="input">'+
                         '<button class="submit">提交</button>'+
@@ -417,31 +398,32 @@ function eventfn(userid,username){
                     $("#tab_title h1").html($(this).find(".text").html());
                 else
                     $("#tab_title h1").html($(this).find(".text").html());
-                video($(".videoStart"));
             });
         });
-         function video(e){
-            e.off("click").on("click",function(){console.log("click")
-                $("#videoCon").show();
-                var video=document.getElementById('videoSelf');
-                navigator.getUserMedia=navigator.mozGetUserMedia||navigator.webkitGetUserMedia||navigator.msGetUserMedia||navigator.getUserMedia;
-                window.URL=window.URL||window.webkitURL||window.mozURL||window.msURL;
-                if(navigator.getUserMedia){
-                    var err=function(){
-                        console.log("无法使用摄像功能");
+         $(".history").off("click").on("click",function(){
+                $(this).hide();
+                $.ajax({url:"/msg",dataType:"JSON",type:"POST",data:"from="+id+"&to="+userid,success:function(data){
+                        var ele=$('.'+userid);
+                        ele.find('.chat_content').empty();
+                        for(var i=0;i<data.length;i++){
+                            var da=data[i].split("/##/");
+                            var time=new Date()
+                            time.setTime(da[0]-0);
+                            var y=1900+time.getYear(),M=time.getMonth()+1,d=time.getDate();
+                             var h=time.getHours(),
+                                m=time.getMinutes()<10?"0"+time.getMinutes():time.getMinutes(),
+                                s=time.getSeconds()<10?"0"+time.getSeconds():time.getSeconds();
+                            var from=da[1].split("&")[0];
+                            var msg=da[2];
+                            var c=from==id?"me":"other";
+                            ele.find('.chat_content').append("<div class="+c+">"+
+                                "<div class='text'>"+y+"-"+M+"-"+d+"  "+h+":"+m+":"+s+"</div>"+
+                                "<span class='username'>"+from+"</span><span class='msg'>"+msg+"</span></div>");
+                            ele.scrollTop(ele.find(".chat_content").height()-ele.height());
+                        }
                     }
-                   navigator.getUserMedia({"video":true},function(stream){
-                    if(video.mozSrcObject!==undefined){
-                        video.mozSrcObject=stream;
-                    }else{
-                        video.src=(window.URL&&window.URL.createObjectURL(stream))||stream;
-                    }
-                    console.log(video.src);
-                    socket.emit('private message',id,userid,{video:video.src});
-                   },err);
-                }
-            })
-         }
+                })
+         })
          $("#tab_title").find("."+userid).trigger("click");
 
         $("#tab_title .title .close").each(function(index){
@@ -452,31 +434,40 @@ function eventfn(userid,username){
                 $(".commonality_title").trigger("click");
             })
         });
-        submit();
-
+        emit()
 }
-function submit(){
-        $(".submit").off()
-        $('.submit').on("click",function(){
-                var value=$(this).parent().find(".input").val();
-                if(value!=""){
-                    var to=$(this).parents("li").attr("value");
-                    if(to=="commonality")
-                    socket.emit('chat message',id,to,value);
-                    else{
-                        socket.emit('private message',id,to,value);
-                        var time=new Date();
-                        var h=time.getHours(),m=time.getMinutes(),s=time.getSeconds();
-                        var ele=$('.'+to);
-                        ele.find(".chat_content").append("<div class='me'>"+
-                            "<div class='text'>"+h+":"+m+":"+s+"</div>"+
-                            "<span class='username'>"+name+"</span><span class='msg'>"+value+"</span></div>");
-                        ele.scrollTop(ele.find(".chat_content").height()-ele.height());
-                    }
-                    $('.input').val('');
-                }
-                return false;
-        });
+function emit(){
+    $('.submit').off("click").on("click",function(){
+        submit($(this))
+    });
+    $(document).off("keydown").on("keydown",function(e){
+        if(e.keyCode==13)
+            submit($("#chat_contents .active .submit"))
+    })
 }
+function submit(e){
+        var value=e.parent().find(".input").val();
+        if(value!=""&&value.indexOf("/**/")==-1&&value.indexOf("/##/")==-1){
+            var to=e.parents("li").attr("value");
+            if(to=="commonality")
+            socket.emit('chat message',id,to,value);
+            else{
+                socket.emit('private message',id,to,value);
+                var time=new Date();
+                var y=1900+time.getYear(),M=time.getMonth()+1,d=time.getDate();
+                 var h=time.getHours(),
+                    m=time.getMinutes()<10?"0"+time.getMinutes():time.getMinutes(),
+                    s=time.getSeconds()<10?"0"+time.getSeconds():time.getSeconds();
+                var ele=$('.'+to);
+                ele.find(".chat_content").append("<div class='me'>"+
+                    "<div class='text'>"+y+"-"+M+"-"+d+"  "+h+":"+m+":"+s+"</div>"+
+                    "<span class='username'>"+name+"</span><span class='msg'>"+value+"</span></div>");
+                ele.scrollTop(ele.find(".chat_content").height()-ele.height());
+            }
+            e.parent().find(".input").val('');
+        }
+        return false;
+}
+})();
 </script>
 </html>
