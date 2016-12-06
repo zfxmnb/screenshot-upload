@@ -4,6 +4,8 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var config = require('config');
+var setTime = require('settime');
 
 var index = require('./routes/index');
 var login = require('./routes/login');
@@ -75,6 +77,7 @@ app.set('port', port);
 /**
  * Create HTTP server.
  */
+setTime.clearLoginRecord(config.ctime,config.expires);
 
 var server = http.createServer(app);
 
