@@ -8,5 +8,8 @@ router.get('/', function(req, res, next) {
 		res.render("index",userinfo);
 	})
 });
+router.post('/', function(req, res, next) {
+	sign.resetUserInfo(req,res);
+});
 
 module.exports = router;

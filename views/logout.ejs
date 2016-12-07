@@ -1,11 +1,11 @@
-<button id="logout" style="border:none; border-radius:3px;background:#f30;opacity:0.8;padding:2px 3px;color:#fff;font-size:15px;cursor:pointer;position:fixed; right:20px; top:20px;">
+<button id="logout" style="border:none; border-radius:3px;background:#f30;opacity:0.8;padding:5px;color:#fff;font-size:15px;cursor:pointer;position:fixed; right:20px; top:20px;">
 退出
 </button>
 <script type="text/javascript">
 $(function(){
     $("#logout").click(function(){
         if(confirm("你确定要退出吗？")){
-            $.ajax({url:"/login",type:"GET",
+            $.ajax({url:"/login",type:"POST",
                 dataType:"JSON",
                 data:"type=logout",
                 success:function(data){

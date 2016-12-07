@@ -10,7 +10,11 @@ var db=new mongo.Db("test",server,{safe:true});
 router.post('/', function(req, res, next) {
 	db.open(function (err,db) {
 	    db.collection("messages",function(err,collection){
-	    	 collection.findOne({$or:[{rel:req.body.from+"&"+req.body.to},{rel:req.body.to+"&"+req.body.from}]},function (err,docs){
+	    	if(req.body.to=="commonality")
+	    		var term={rel:"commonality"};
+	    	else
+	    		var term={$or:[{rel:req.body.from+"&"+req.body.to},{rel:req.body.to+"&"+req.body.from}]};
+	    	 collection.findOne(term,function (err,docs){
 	    	 	if(err) throw err;
 	    	 	else{
 	    	 		if(docs){

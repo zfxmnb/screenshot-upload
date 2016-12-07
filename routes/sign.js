@@ -19,6 +19,7 @@ router.post('/', function(req, res, next) {
 		 		collection.findOne({username:data.username},function (err,docs){
 		 			if(err) throw err;
 		 			else{
+		 				var name=docs.name;
 		 				if(data.type=="signin"){
 			 				if(!docs){
 			 					var user=new RegExp("^[a-z]*$");
@@ -42,7 +43,7 @@ router.post('/', function(req, res, next) {
 								   		var domain=req.headers["host"].split(":")[0];
 								   		//var index=config.lawOutside.indexOf(domain);
 								   		//var cookieDomain=index!=-1?config.lawOutside[index]:"."+domain;
-								   		//var cookieDomain=domain;
+								   		var cookieDomain=domain;
 
 										var userAgent=req.headers["user-agent"];
 								   		var ipAddress=(req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket.remoteAddress);
@@ -74,7 +75,7 @@ router.post('/', function(req, res, next) {
 										   				}
 										   				//生成tempId
 										   				var tempId=uuid.v4();
-										   				
+
 												   		//设置cookie
 										   				res.setHeader('Set-Cookie', ['username='+data.username+';path=/;domain='+cookieDomain+';max-age=83400',
 										   					'tempId='+tempId+';path=/;domain='+cookieDomain,
@@ -87,6 +88,7 @@ router.post('/', function(req, res, next) {
 										   				//插入新数据到登录表
 										   				collection.insert({
 										   					username:data.username,
+										   					name:name,
 										   					password:data.password,
 										   					ipAddress:ipAddress,
 										   					tempId:tempId,
@@ -97,7 +99,6 @@ router.post('/', function(req, res, next) {
 										   				function(err,docs){
 										   					db.close();
 										   				});
-												   			
 										   			}else{
 									   					if((parseInt(time)-parseInt(docs.time))>(config.expires*60000)){
 									   					//登录已经过期
@@ -118,6 +119,7 @@ router.post('/', function(req, res, next) {
 											   				//插入新数据到登录表
 											   				collection.insert({
 											   					username:data.username,
+											   					name:name,
 											   					password:data.password,
 											   					ipAddress:ipAddress,
 											   					tempId:tempId,

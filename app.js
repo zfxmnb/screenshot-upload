@@ -114,6 +114,29 @@ io.on('connection',function(socket){
       json.push(from);
       json.push(data);
 	    io.emit('chat message',json);
+      if(data.indexOf("/**/")==-1&&data.indexOf("/##/")==-1){
+      db.open(function (err,db) {
+            db.collection("messages",function(err,collection){
+              if(err) throw err;
+                else{
+                    collection.findOne({rel:"commonality"},function (err,docs){
+                      if(err) throw err;
+                      else{
+                        if(docs){
+                          collection.updateOne({rel:docs.rel},{$set:{massage:docs.massage+"/**/"+new Date().getTime()+"/##/"+from+"&chat"+"/##/"+data}},function(){
+                            db.close();
+                          });
+                        }else{
+                          collection.insert({rel:"commonality",massage:new Date().getTime()+"/##/"+from+"&chat"+"/##/"+data},function(){
+                            db.close();
+                          });
+                        }
+                      }
+                    })
+                  }
+                })
+              });
+        }
 	});
   socket.on('private message', function (from,to,data) {
     var json=[];

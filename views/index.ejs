@@ -54,8 +54,9 @@
         }
         #tab_title h1{
             margin:0 10px;
-            font-size:#666;
             font-weight: 600;
+            color: rgb(5,155,210);
+            text-shadow: 0 0 5px #bbb;
         }
         #tab_title ul{
             position: absolute;
@@ -83,7 +84,7 @@
             border-radius:5px 5px 0 0;
             background:rgb(135,205,235);
             cursor:pointer;
-            color:#333;
+            color:#fff;
             
         }
         #tab_title li.active{
@@ -146,7 +147,8 @@
             color:gray;
         }
         .chat_content div{
-            margin:10px;
+            margin:0 10px;
+            padding:5px 0;
             overflow: hidden;
         }
         .chat_submit{
@@ -165,6 +167,7 @@
         .chat_submit .input_con{
             width:80%;
             position: relative;
+            float:left;
         }
         .chat_submit button{
             background:rgb(185,255,235);
@@ -217,9 +220,16 @@
         }
         .msg{
             padding:5px 10px;
-            background:rgb(135,205,235);
+            background:#fff;
             border-radius:10px;
             max-width: 50%;
+            border:1px solid #ccc;
+        }
+        .me .msg{
+            box-shadow: 5px 5px 5px #aaa;
+        }
+        .other .msg{
+            box-shadow: -5px 5px 5px #aaa;
         }
         .username{
             padding:5px 10px;
@@ -263,8 +273,10 @@
             height:26px;
             display: block;
             position: absolute;
-            right:5px;
-            top:5px;
+            background:url(/images/emoji.jpg) no-repeat 0 -5px;
+            right:2px;
+            top:0px;
+            cursor:pointer;
         }
         #emojiCon{
             list-style-type: none;
@@ -272,6 +284,10 @@
             height:182px;
             border:1px solid #ccc;
             border-radius:3px;
+            position: absolute;
+            bottom:33px;right:18.5%;
+            margin-right:-23px;
+            display:none;
         }
         #emojiCon li{
             float:left;
@@ -283,8 +299,21 @@
         .emojiOcc{
             height:26px;
             width:26px;
+            vertical-align: bottom;
             display: inline-block;
             background:url(/images/emoji.jpg) no-repeat;
+        }
+        #nickname{
+            background:rgb(5,155,210);
+            border:none;
+            color: #fff;
+            width: 110px;
+            font-size: 16px;
+        }
+        #nickname:focus{
+            background:#fff;
+            color:#000;
+            border:1px solid #fff;
         }
     </style>
 </head>
@@ -299,14 +328,16 @@
         </div>
         <div class="chat_container">
             <div id="tab_title">
-                <h1>commonality</h1>
+                <h1>聊天室</h1>
                 <ul>
-                    <li class="commonality_title title active"><span class="text">commonality</span></li>
+                    <li class="commonality_title title active"><span class="text">聊天室</span></li>
                 </ul>
             </div>
             <ul id="chat_contents">
                 <li class="commonality active" value="commonality">
-                    <div class="chat_content"></div>
+                    <div class="chat_content">
+                        <div class="tips history"><span>查看聊天历史</span></div>
+                    </div>
                     <div class="chat_submit">
                         <div class="input_con">
                             <input type="text" class="input">
@@ -323,14 +354,13 @@
             <video src="" id="videoSelf"></video>
         </div>
         <% include logout.ejs %>
-       
 </body>
 <script>
 (function(){
 var socket = io();
 var chatType,id,name;
     id="<%= username%>";
-    name="<%= username%>";
+    name="<%= name%>";
     socket.emit('login', {"userid":id,"username":name});
 
     socket.on('login', function (data) {
@@ -339,10 +369,27 @@ var chatType,id,name;
         $("#userList .user_num").html("在线人数："+data.onlineCount);
         for(key in data.onlineUsers){
             if(key!=id)
-                $("#userList ul").prepend("<li value="+key+">"+data.onlineUsers[key]+"</li>");
+                if(data.onlineUsers[key]==key)
+                $("#userList ul").prepend("<li value="+key+" nickname='"+data.onlineUsers[key]+"'>"+data.onlineUsers[key]+"</li>");
+                else
+                    $("#userList ul").prepend("<li value="+key+" nickname='"+data.onlineUsers[key]+"'>"+data.onlineUsers[key]+"(ID:"+key+")</li>");
             else
-                $("#userList .self").html("<span>name:</span><big>"+data.onlineUsers[key]+"</big><br /><span>id:</span>"+key)
+                $("#userList .self").html("<span>昵称:</span><big><input id='nickname' value='"+data.onlineUsers[key]+"'></big><br /><span>账号:</span>"+key)
         }
+         var nickname=$("#name").val();
+        $("#nickname").change(function(){
+            if($(this).val().length<12){
+                $.ajax({url:"/",dataType:"JSON",type:"POST",data:"name="+$(this).val()+"&username="+id,success:function(data){
+                        if(data.msg=="ok"){
+                        }else{
+                            $(this).val(nickname);
+                        }
+                    }
+                })
+            }else{
+                $(this).val(nickname);
+            }
+        })
         event();
     });
     socket.on('logout', function(data) {
@@ -350,9 +397,12 @@ var chatType,id,name;
         $("#userList .user_num").html("在线人数："+data.onlineCount);
         for(key in data.onlineUsers){
             if(key!=id)
-                $("#userList ul").prepend("<li value="+key+">"+data.onlineUsers[key]+"</li>");
+                if(data.onlineUsers[key]==key)
+                $("#userList ul").prepend("<li value="+key+" nickname='"+data.onlineUsers[key]+"'>"+data.onlineUsers[key]+"</li>");
+                else
+                    $("#userList ul").prepend("<li value="+key+" nickname='"+data.onlineUsers[key]+"'>"+data.onlineUsers[key]+"(ID:"+key+")</li>");
             else
-                $("#userList .self").html("<span>name:</span><big>"+data.onlineUsers[key]+"</big><br /><span>id:</span>"+key)
+                $("#userList .self").html("<span>昵称:</span><big>"+data.onlineUsers[key]+"</big><br /><span>账号:</span>"+key)
         }
         event();
     });
@@ -370,7 +420,7 @@ var chatType,id,name;
         var ele=$('.'+userid);
         ele.find(".chat_content").append("<div class='other'>"+
             "<div class='text'>"+y+"-"+M+"-"+d+"  "+h+":"+m+":"+s+"</div>"+
-            "<span class='username'>"+username+"</span><span class='msg'>"+msg+"</span></div>");
+            "<span class='username'>"+username+"</span><span class='msg'>"+emojiexplain(msg)+"</span></div>");
         ele.scrollTop(ele.find(".chat_content").height()-ele.height());
     });
 
@@ -391,11 +441,13 @@ var chatType,id,name;
         var ele=$(".commonality");
         ele.find('.chat_content').append("<div class="+c+">"+
             "<div class='text'>"+y+"-"+M+"-"+d+"  "+h+":"+m+":"+s+"</div>"+
-            "<span class='username'>"+username+"</span><span class='msg'>"+msg+"</span></div>");
+            "<span class='username'>"+username+"</span><span class='msg'>"+emojiexplain(msg)+"</span></div>");
         $(".commonality_title").trigger("click");
         ele.scrollTop(ele.find(".chat_content").height()-ele.height());
     });
     emit();
+    emoji();
+    universally("commonality");
 //}
 //
 function emoji(){
@@ -404,31 +456,39 @@ function emoji(){
         var x=parseInt(i/15),y=i%15;
         string+="<li class='emoji("+x+","+y+")' style='background-position:"+(-y*26)+"px "+(-x*26-5)+"px;'></li>";
      }
-     $("#emojiCon").html(string); 
+     $("#emojiCon").html(string);
+      emojiClick();
  }
  function emojiClick(){
-    $("#emojiCon").fadeIn(300);
-     var eleLi=$("#emojiCon").find("li");  
+     var eleLi=$("#emojiCon").find("li");
      eleLi.on("click",function(){
         var pos=$(this).index("#emojiCon li");
-        var emoji="<i class='emojiOcc' style='background-position:"+(-(pos%15)*26)+"px "+(-parseInt(pos/15)*26-5)+"px;'></i>";
-        $(".test").append(emoji);
+        var emoji="[emoji("+pos+")]";
+        var input=$("#chat_contents .active .input");
+        input.val(input.val()+emoji);
      });
  }
  function emojiexplain(string){
     var arr=string.split("[emoji(");
     var newString="";
     for(var i=0;i<arr.length;i++){
-        if(i%2==1){
+        if(i>0){
             var s=arr[i].split(")]")[0];
-            var x=s.split(",")[0];
-            var y=s.split(",")[1];
-            newString+="<i class='emojiOcc' style='background-position:"+(-y*26)+"px "+(-x*26-5)+"px;'></i>"+arr[i].split(")]")[1];
+            if((s-0)>-1&&(s-0)<105){
+                var x=parseInt(s/15);
+                var y=s%15;
+                var str2=arr[i].split(")]")[1]||"";
+                newString+="<i class='emojiOcc' style='background-position:"+(-y*26)+"px "+(-x*26-5)+"px;'></i>"+str2;
+            }else{
+                var str2=arr[i].split(")]")[1]?")]"+arr[i].split(")]")[1]:"";
+                newString+="[emoji("+s+str2;
+            }
         }else{
             newString+=arr[i];
         }
     }
- }  
+    return newString
+ }
 function event(){
     $("#userList ul li").off();
     $("#userList ul li").on("click",function(){
@@ -437,6 +497,52 @@ function event(){
         if(userid!=id)
             eventfn(userid,username);
     });
+}
+function universally(userid){
+    $(".history").off("click").on("click",function(){
+            $(this).hide();
+            $.ajax({url:"/msg",dataType:"JSON",type:"POST",data:"from="+id+"&to="+userid,success:function(data){
+                    var ele=$('.'+userid);
+                    ele.find('.chat_content').empty();
+                    for(var i=0;i<data.length;i++){
+                        var da=data[i].split("/##/");
+                        var time=new Date()
+                        time.setTime(da[0]-0);
+                        var y=1900+time.getYear(),M=time.getMonth()+1,d=time.getDate();
+                         var h=time.getHours(),
+                            m=time.getMinutes()<10?"0"+time.getMinutes():time.getMinutes(),
+                            s=time.getSeconds()<10?"0"+time.getSeconds():time.getSeconds();
+                        var from=da[1].split("&")[0];
+                        var msg=da[2];
+                        if(from==id){
+                            from=$("#nickname").val();
+                            var c="me";
+                        }else{
+                            $("#userList ul li").each(function(){
+                                if($(this).attr("value")==from){
+                                    from=$(this).attr("nickname");
+                                }
+                            })
+                            var c="other"
+                        }
+                        ele.find('.chat_content').append("<div class="+c+">"+
+                            "<div class='text'>"+y+"-"+M+"-"+d+"  "+h+":"+m+":"+s+"</div>"+
+                            "<span class='username'>"+from+"</span><span class='msg'>"+emojiexplain(msg)+"</span></div>");
+                        ele.scrollTop(ele.find(".chat_content").height()-ele.height());
+                    }
+                }
+            })
+     });
+    $(".emojiButton").off("click").on("click",function(){
+        if($(this).hasClass("active")){
+            $(this).removeClass("active");
+            $("#emojiCon").fadeOut(300);
+        }else{
+            $(this).addClass("active");
+            $("#emojiCon").fadeIn(300);
+        }
+    })
+
 }
 function eventfn(userid,username){
     if($("#tab_title").find("."+userid).length>0){
@@ -452,10 +558,9 @@ function eventfn(userid,username){
                     '</div>'+
                 '</li>');
         }
-
+        universally(userid);
          $("#tab_title .title").each(function(index){
-            $(this).off();
-            $(this).on("click",function(){
+            $(this).off("click").on("click",function(){
                 $("#tab_title .title").removeClass("active");
                 $(this).addClass("active");
                 $("#chat_contents>li").removeClass("active");
@@ -466,30 +571,6 @@ function eventfn(userid,username){
                     $("#tab_title h1").html($(this).find(".text").html());
             });
         });
-         $(".history").off("click").on("click",function(){
-                $(this).hide();
-                $.ajax({url:"/msg",dataType:"JSON",type:"POST",data:"from="+id+"&to="+userid,success:function(data){
-                        var ele=$('.'+userid);
-                        ele.find('.chat_content').empty();
-                        for(var i=0;i<data.length;i++){
-                            var da=data[i].split("/##/");
-                            var time=new Date()
-                            time.setTime(da[0]-0);
-                            var y=1900+time.getYear(),M=time.getMonth()+1,d=time.getDate();
-                             var h=time.getHours(),
-                                m=time.getMinutes()<10?"0"+time.getMinutes():time.getMinutes(),
-                                s=time.getSeconds()<10?"0"+time.getSeconds():time.getSeconds();
-                            var from=da[1].split("&")[0];
-                            var msg=da[2];
-                            var c=from==id?"me":"other";
-                            ele.find('.chat_content').append("<div class="+c+">"+
-                                "<div class='text'>"+y+"-"+M+"-"+d+"  "+h+":"+m+":"+s+"</div>"+
-                                "<span class='username'>"+from+"</span><span class='msg'>"+msg+"</span></div>");
-                            ele.scrollTop(ele.find(".chat_content").height()-ele.height());
-                        }
-                    }
-                })
-         })
          $("#tab_title").find("."+userid).trigger("click");
 
         $("#tab_title .title .close").each(function(index){
@@ -527,10 +608,11 @@ function submit(e){
                 var ele=$('.'+to);
                 ele.find(".chat_content").append("<div class='me'>"+
                     "<div class='text'>"+y+"-"+M+"-"+d+"  "+h+":"+m+":"+s+"</div>"+
-                    "<span class='username'>"+name+"</span><span class='msg'>"+value+"</span></div>");
+                    "<span class='username'>"+name+"</span><span class='msg'>"+emojiexplain(value)+"</span></div>");
                 ele.scrollTop(ele.find(".chat_content").height()-ele.height());
             }
             e.parent().find(".input").val('');
+            $("#emojiCon").fadeOut(300);
         }
         return false;
 }
