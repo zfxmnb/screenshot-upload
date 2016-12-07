@@ -51,10 +51,10 @@ db.open(function (err,db) {
 								var Referer="/";
 
 							var domain=req.headers["host"].split(":")[0];
-						   	var index=config.lawOutside.indexOf(domain);
-							var cookieDomain=index!=-1?config.lawOutside[index]:"."+domain;
+						   	//var index=config.lawOutside.indexOf(domain);
+							//var cookieDomain=index!=-1?config.lawOutside[index]:"."+domain;
+							var cookieDomain=domain;
 
-							//var cookieDomain="."+domain;
 							if(docs&&Referer&&(time-parseInt(docs.time))<(config.expires*60000)){
 								res.redirect(Referer);
 				   				collection.updateOne(

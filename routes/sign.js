@@ -40,9 +40,9 @@ router.post('/', function(req, res, next) {
 							        else{
 								   		var time=new Date().getTime()
 								   		var domain=req.headers["host"].split(":")[0];
-								   		var index=config.lawOutside.indexOf(domain);
-								   		var cookieDomain=index!=-1?config.lawOutside[index]:"."+domain;
-								   		//var cookieDomain="."+domain;
+								   		//var index=config.lawOutside.indexOf(domain);
+								   		//var cookieDomain=index!=-1?config.lawOutside[index]:"."+domain;
+								   		//var cookieDomain=domain;
 
 										var userAgent=req.headers["user-agent"];
 								   		var ipAddress=(req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket.remoteAddress);
