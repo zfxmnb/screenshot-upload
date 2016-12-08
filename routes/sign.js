@@ -19,7 +19,6 @@ router.post('/', function(req, res, next) {
 		 		collection.findOne({username:data.username},function (err,docs){
 		 			if(err) throw err;
 		 			else{
-		 				var name=docs.name;
 		 				if(data.type=="signin"){
 			 				if(!docs){
 			 					var user=new RegExp("^[a-z]*$");
@@ -36,6 +35,7 @@ router.post('/', function(req, res, next) {
 			 				}
 			 			}else if(data.type=="login"){
 			 				if(docs&&data.password==docs.password){
+			 					var name=docs.name||docs.username;
 			 					db.collection("singlelogin",function(err,collection){
 							    	if(err) throw err;
 							        else{

@@ -2,9 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>socket_demo</title>
+    <title>繁星聊天</title>
     <script src="/javascripts/jquery-1.11.1.js"></script>
     <script src="/javascripts/socket.io-1.4.5.js"></script>
+    <link rel="stylesheet" href="https://apps.bdimg.com/libs/fontawesome/4.4.0/css/font-awesome.min.css">
     <style>
         *{
             margin:0;
@@ -188,14 +189,15 @@
             text-align:center;
         }
         .self{
-            padding: 1em;
+            padding: 0.5em;
             color:#fff;
         }
         .self span{
             display: inline-block;
             margin-right:5px;
             text-align:right;
-            width:50px;
+            width:55px;
+            cursor:pointer;
         }
         #tab_title .active{
             background:rgb(135,205,235);
@@ -217,6 +219,7 @@
         }
         .other span{
             display:inline-block;
+            min-width: 100px
         }
         .msg{
             padding:5px 10px;
@@ -307,7 +310,7 @@
             background:rgb(5,155,210);
             border:none;
             color: #fff;
-            width: 110px;
+            width: 100px;
             font-size: 16px;
         }
         #nickname:focus{
@@ -374,7 +377,7 @@ var chatType,id,name;
                 else
                     $("#userList ul").prepend("<li value="+key+" nickname='"+data.onlineUsers[key]+"'>"+data.onlineUsers[key]+"(ID:"+key+")</li>");
             else
-                $("#userList .self").html("<span>昵称:</span><big><input id='nickname' value='"+data.onlineUsers[key]+"'></big><br /><span>账号:</span>"+key)
+                $("#userList .self").html("<label for='nickname'><span><i class='fa fa-pencil-square-o'></i>昵称:</span></label><big><input id='nickname' value='"+data.onlineUsers[key]+"'></big><br /><span>账号:</span>"+key)
         }
          var nickname=$("#name").val();
         $("#nickname").change(function(){
@@ -421,7 +424,7 @@ var chatType,id,name;
         ele.find(".chat_content").append("<div class='other'>"+
             "<div class='text'>"+y+"-"+M+"-"+d+"  "+h+":"+m+":"+s+"</div>"+
             "<span class='username'>"+username+"</span><span class='msg'>"+emojiexplain(msg)+"</span></div>");
-        ele.scrollTop(ele.find(".chat_content").height()-ele.height());
+        ele.scrollTop(1000000);
     });
 
     socket.on('chat message', function (data) {
@@ -443,13 +446,13 @@ var chatType,id,name;
             "<div class='text'>"+y+"-"+M+"-"+d+"  "+h+":"+m+":"+s+"</div>"+
             "<span class='username'>"+username+"</span><span class='msg'>"+emojiexplain(msg)+"</span></div>");
         $(".commonality_title").trigger("click");
-        ele.scrollTop(ele.find(".chat_content").height()-ele.height());
+        ele.scrollTop(1000000);
     });
     emit();
     emoji();
     universally("commonality");
 //}
-//
+
 function emoji(){
     var string="";
     for(var i=0;i<105;i++){
@@ -458,6 +461,7 @@ function emoji(){
      }
      $("#emojiCon").html(string);
       emojiClick();
+      //$("#userList,.chat_content").click(function(){$("#emojiCon").fadeOut(200);})
  }
  function emojiClick(){
      var eleLi=$("#emojiCon").find("li");
@@ -528,7 +532,7 @@ function universally(userid){
                         ele.find('.chat_content').append("<div class="+c+">"+
                             "<div class='text'>"+y+"-"+M+"-"+d+"  "+h+":"+m+":"+s+"</div>"+
                             "<span class='username'>"+from+"</span><span class='msg'>"+emojiexplain(msg)+"</span></div>");
-                        ele.scrollTop(ele.find(".chat_content").height()-ele.height());
+                        ele.scrollTop(1000000);
                     }
                 }
             })
@@ -541,6 +545,9 @@ function universally(userid){
             $(this).addClass("active");
             $("#emojiCon").fadeIn(300);
         }
+    });
+    $("#userList,.chat_content").click(function(){
+        $("#emojiCon").fadeOut(200);
     })
 
 }
@@ -609,10 +616,10 @@ function submit(e){
                 ele.find(".chat_content").append("<div class='me'>"+
                     "<div class='text'>"+y+"-"+M+"-"+d+"  "+h+":"+m+":"+s+"</div>"+
                     "<span class='username'>"+name+"</span><span class='msg'>"+emojiexplain(value)+"</span></div>");
-                ele.scrollTop(ele.find(".chat_content").height()-ele.height());
+                ele.scrollTop(1000000);
             }
             e.parent().find(".input").val('');
-            $("#emojiCon").fadeOut(300);
+            $("#emojiCon").fadeOut(200);
         }
         return false;
 }
