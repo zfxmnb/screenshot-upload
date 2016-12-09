@@ -20,7 +20,7 @@ router.post('/', function(req, res, next) {
 	    	 		if(docs){
 	    	 			var m=docs.massage+"";
 	    	 			var msg=m.split("/**/");
-	    	 			if(msg.length>50){
+	    	 			if(msg.length>30){
 	    	 				var stringArr=msg.splice(1,msg.length-15);
 	    	 				var string="";
 	    	 				for(var i=0;i<stringArr.length;i++){
