@@ -18,7 +18,7 @@ var chatType,id=$(".self").data("username"),name=$(".self").data("name"),userid,
         var nickname=$("#nickname").val();
         $("#nickname").change(function(){
             if($(this).val().length<12){
-                $.ajax({url:"/",dataType:"JSON",type:"POST",data:"name="+$(this).val()+"&username="+id,success:function(data){
+                $.ajax({url:"/chat",dataType:"JSON",type:"POST",data:"name="+$(this).val()+"&username="+id,success:function(data){
                         if(data.msg=="ok"){
                         }else{
                             $(this).val(nickname);
@@ -31,51 +31,61 @@ var chatType,id=$(".self").data("username"),name=$(".self").data("name"),userid,
         })
         //发送游戏请求
         $("#userList ul li").off("click").on("click",function(){
-            userid=$(this).attr("value");
-            username=$(this).html();
-            $("#tip .to").html(username);
-            var value=["request",true];
-            if(userid!=id){
-                $("#bg,#tip,#send").show();
-                socket.emit('private chess',id,userid,value);
-            }
+            if(!connected){
+                userid=$(this).attr("value");
+                username=$(this).html();
+                $("#tip .to").html(username);
+                var value=["request",true];
+                if(userid!=id){
+                    $("#bg,#tip,#send").show();
+                    socket.emit('private chess',id,userid,value);
+                }
 
-            $("#send .cancel").one("click",function(){
-                var value=["request",false];
-                $("#bg,#tip,#send,#accept").hide();
-                socket.emit('private chess',id,userid,value);
-            }) 
+                $("#send .cancel").one("click",function(){
+                    var value=["request",false];
+                    $("#bg,#tip,#send,#accept").hide();
+                    socket.emit('private chess',id,userid,value);
+                }) 
+            }
         });
     });
 
     socket.on("logoutChess",function(data){
         $("#userList ul").html("");
         $("#userList .user_num").html("在线人数："+data.onlineCount);
+        var opponent=false;
         for(key in data.onlineUsers){
             if(key!=id)
                 $("#userList ul").prepend("<li value="+key+">"+data.onlineUsers[key]+" <small>[<i>"+key+"</i>]</small></li>");
             else
-                $("#userList .self").html("<span>name:</span><big>"+data.onlineUsers[key]+"</big><br /><span>id:</span>"+key)
+                $("#userList .self").html("<span>name:</span><big>"+data.onlineUsers[key]+"</big><br /><span>id:</span>"+key);
+            if(userid==key)
+                opponent=true;
+        }
+        if(!opponent){
+            $("#disconnect").trigger("click");
         }
         $("#userList ul li").off();
         $("#userList ul li").on("click",function(){
-            userid=$(this).attr("value");
-            var username=$(this).html();
-            $("#tip .to").html(username);
-            var value=["request",true];
-            if(userid!=id){
-                $("#bg,#tip,#send").show();
-                socket.emit('private chess',id,userid,value);
+            if(!connected){
+                userid=$(this).attr("value");
+                var username=$(this).html();
+                $("#tip .to").html(username);
+                var value=["request",true];
+                if(userid!=id){
+                    $("#bg,#tip,#send").show();
+                    socket.emit('private chess',id,userid,value);
+                }
+                $("#send .cancel").one("click",function(){
+                    var value=["request",false];
+                    $("#bg,#tip,#send,#accept").hide();
+                    socket.emit('private chess',id,userid,value);
+                });
             }
-            $("#send .cancel").one("click",function(){
-                var value=["request",false];
-                $("#bg,#tip,#send,#accept").hide();
-                socket.emit('private chess',id,userid,value);
-            });
         });
     })
 
-    socket.on('to'+id, function(data) {
+    socket.on('chessto'+id, function(data) {
             var username=data[0];
             userid=data[1];
             var msg=data[2];
@@ -87,27 +97,33 @@ var chatType,id=$(".self").data("username"),name=$(".self").data("name"),userid,
                     $("#accept .accept").click(function(){
                         var value=["return",true];
                         socket.emit('private chess',id,userid,value);
-                        $("#bg,#tip,#accept,#send").hide();
+                        $("#bg,#tip,#accept,#send,#noIdle").hide();
                     });
 
                     $("#accept .refuse").click(function(){
                         var value=["return",false];
                         socket.emit('private chess',id,userid,value);
-                        $("#bg,#tip,#accept,#send").hide(); 
+                        $("#bg,#tip,#accept,#send,#noIdle").hide(); 
                     });
 
                 }else if(msg[1]=="retrue"){
                     $("#accept").hide(); 
-                    //ok
-                    $(".chat_container h3").html("与"+username+"成功连接上--执黑");
+                    $(".chat_container h3").html("与"+username+"对局--<span>执黑</span>");
                     connected=true;
                     identity="b";
                     prevclick(identity);
                 }else if(msg[1]==false){
-                    $("#bg,#tip,#accept,#send").hide();
+                    $("#bg,#tip,#accept,#send,#noIdle").hide();
+                }else if(msg[1]=="no-idle"){
+                    $("#accept,#send").hide();
+                    $("#noIdle").show();
+                    $("#noIdle .to").html(username+"["+userid+"]");
+                    $("#noIdle .close").off("click").on("click",function(){
+                        $("#bg,#tip,#noIdle").hide();
+                    })
                 }else{
-                    $("#bg,#tip").hide();
-                    $("#accept .accept,#accept .refuse").off();
+                    $("#bg,#tip,#accept,#send,#noIdle").hide();
+                    $("#accept .accept,#accept .refuse").off("click");
                 }
             }
             if(msg[0]=="return"){
@@ -119,7 +135,7 @@ var chatType,id=$(".self").data("username"),name=$(".self").data("name"),userid,
                     socket.emit('private chess',id,userid,value);
                     identity="w";
                     connected=true;
-                    $(".chat_container h3").html("与"+username+"成功连接上--执白");
+                    $(".chat_container h3").html("与"+username+"对局--<span>执白</span>");
                     prevclick(identity);
 
                     $("#tip .ok").show();
@@ -130,13 +146,22 @@ var chatType,id=$(".self").data("username"),name=$(".self").data("name"),userid,
                 $("#bg,#tip,#send,#accept").hide();
             }
             }else{
-                var value=["request",false];
+                var value=["request","no-idle"];
                 socket.emit('private chess',id,userid,value);
             }
             if(msg[0]=="w"||msg[0]=="b"){
                 eventfn(msg[0],msg[1]);
             }
             if(msg[0]=="reset"){
+                if(identity=="w"){
+                    identity="b";
+                    $(".chat_container h3 span").html("执黑");
+                    kz=false;
+                }else{
+                    identity="w";
+                    $(".chat_container h3 span").html("执白");
+                    kz=true;
+                }
                 arr=arrSet(arr);
                 k=null;
                 w=0,b=0;
@@ -144,7 +169,6 @@ var chatType,id=$(".self").data("username"),name=$(".self").data("name"),userid,
                 reset(ctx);
             }
             if(msg[0]=="disconnect"){
-                $(".chat_container h3").html("");
                  arr=arrSet(arr);
                 k=null,kz=false;
                 w=0,b=0;
@@ -179,6 +203,15 @@ arr=arrSet(arr);
 
 grid(ctx);
 $('#reset').click(function(){
+        if(identity=="w"){
+            identity="b";
+            $(".chat_container h3 span").html("执黑");
+            kz=false;
+        }else{
+            identity="w";
+            $(".chat_container h3 span").html("执白");
+            kz=true;
+        }
         arr=arrSet(arr);
         k=null;
         w=0,b=0;

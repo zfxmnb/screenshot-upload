@@ -7,7 +7,7 @@ var uuid = require('uuid');
 var mongo=require("mongodb");
 var host="localhost";
 var server=new mongo.Server(host,27017,{auto_reconnect:true});//创建数据库所在的服务器服务器
-var db=new mongo.Db("test",server,{safe:true});
+var db=new mongo.Db("node",server,{safe:true});
 /* GET home page. */
 
 router.post('/', function(req, res, next) {
@@ -23,12 +23,16 @@ router.post('/', function(req, res, next) {
 			 				if(!docs){
 			 					var user=new RegExp("^[a-z]*$");
 			 					if(user.test(data.username)&&data.username.length>3&&data.username.length<12&&data.password.length>5&&data.password.length<15){
-			 						collection.insert({username:data.username,password:data.password});
 			 						res.end(JSON.stringify({success:true,msg:"register success"}));
+			 						collection.insert({username:data.username,password:data.password},function(err){
+			 							if(err) throw err;
+										else
+			 							db.close();
+			 						});
 			 					}else{
 			 						res.end(JSON.stringify({success:false,msg:"register failed"}));
+			 						db.close();
 			 					}
-			 					db.close();
 			 				}else{
 			 					res.end(JSON.stringify({success:false,msg:"registered"}));
 			 					db.close();
@@ -41,8 +45,6 @@ router.post('/', function(req, res, next) {
 							        else{
 								   		var time=new Date().getTime()
 								   		var domain=req.headers["host"].split(":")[0];
-								   		//var index=config.lawOutside.indexOf(domain);
-								   		//var cookieDomain=index!=-1?config.lawOutside[index]:"."+domain;
 								   		var cookieDomain=domain;
 
 										var userAgent=req.headers["user-agent"];
@@ -77,27 +79,31 @@ router.post('/', function(req, res, next) {
 										   				var tempId=uuid.v4();
 
 												   		//设置cookie
-										   				res.setHeader('Set-Cookie', ['username='+data.username+';path=/;domain='+cookieDomain+';max-age=83400',
+										   				res.setHeader('Set-Cookie', ['username='+data.username+';path=/;domain='+cookieDomain+';max-age=86400',
 										   					'tempId='+tempId+';path=/;domain='+cookieDomain,
-										   					'clientId='+clientId+';path=/;domain='+cookieDomain+';max-age=83400']);
+										   					'clientId='+clientId+';path=/;domain='+cookieDomain+';max-age=86400']);
 										   				//返回信息
 										   				res.end(JSON.stringify({success:true,msg:"allow"}));
-										   				collection.remove({$or:[
-										   					{username:data.username,password:data.password}
-										   				]});
-										   				//插入新数据到登录表
-										   				collection.insert({
-										   					username:data.username,
-										   					name:name,
-										   					password:data.password,
-										   					ipAddress:ipAddress,
-										   					tempId:tempId,
-										   					time:time,
-										   					clientId:clientId,
-										   					userAgent:userAgent
-										   				},
-										   				function(err,docs){
-										   					db.close();
+										   				collection.remove({username:data.username,password:data.password}
+										   					,function(err){
+										   					if(err) throw err;
+															 else
+															 	//插入新数据到登录表
+												   				collection.insert({
+												   					username:data.username,
+												   					name:name,
+												   					password:data.password,
+												   					ipAddress:ipAddress,
+												   					tempId:tempId,
+												   					time:time,
+												   					clientId:clientId,
+												   					userAgent:userAgent
+												   				},
+												   				function(err,docs){
+												   					if(err) throw err;
+																	else
+												   					db.close();
+												   				});
 										   				});
 										   			}else{
 									   					if((parseInt(time)-parseInt(docs.time))>(config.expires*60000)){
@@ -108,34 +114,38 @@ router.post('/', function(req, res, next) {
 											   				}else{
 											   					var tempId=uuid.v4();
 											   				}
-											   				//移除过期表数据
-									   						collection.remove({username:docs.username,password:docs.password,ipAddress:ipAddress,userAgent:userAgent});
 									   						//更新新cookie
-											   				res.setHeader('Set-Cookie', ['username='+docs.username+';path=/;domain='+cookieDomain+';max-age=83400',
+											   				res.setHeader('Set-Cookie', ['username='+docs.username+';path=/;domain='+cookieDomain+';max-age=86400',
 												   					'tempId='+tempId+';path=/;domain='+cookieDomain,
-												   					'clientId='+docs.clientId+';path=/;domain='+cookieDomain+';max-age=83400']);
+												   					'clientId='+docs.clientId+';path=/;domain='+cookieDomain+';max-age=86400']);
 											   				//返回信息
 											   				res.end(JSON.stringify({success:true,msg:"allow"}));
-											   				//插入新数据到登录表
-											   				collection.insert({
-											   					username:data.username,
-											   					name:name,
-											   					password:data.password,
-											   					ipAddress:ipAddress,
-											   					tempId:tempId,
-											   					time:time,
-											   					clientId:docs.clientId,
-											   					userAgent:userAgent
-											   				},
-											   				function(err,docs){
-											   					db.close();
-											   				});
+											   				//移除过期表数据
+									   						collection.remove({username:docs.username,password:docs.password}
+									   							,function(err){
+									   								//插入新数据到登录表
+													   				collection.insert({
+													   					username:data.username,
+													   					name:name,
+													   					password:data.password,
+													   					ipAddress:ipAddress,
+													   					tempId:tempId,
+													   					time:time,
+													   					clientId:docs.clientId,
+													   					userAgent:userAgent
+													   				},
+													   				function(err,docs){
+													   					if(err) throw err;
+																	  	else
+													   					db.close();
+													   				});
+									   							});
 									   					}else{
 									   					//已经登陆成功
 									   						//更新新cookie
-											   				res.setHeader('Set-Cookie', ['username='+docs.username+';path=/;domain='+cookieDomain+';max-age=83400',
+											   				res.setHeader('Set-Cookie', ['username='+docs.username+';path=/;domain='+cookieDomain+';max-age=86400',
 												   					'tempId='+docs.tempId+';path=/;domain='+cookieDomain,
-												   					'clientId='+docs.clientId+';path=/;domain='+cookieDomain+';max-age=83400']);
+												   					'clientId='+docs.clientId+';path=/;domain='+cookieDomain+';max-age=86400']);
 											   				//返回信息
 											   				res.end(JSON.stringify({success:true,msg:"logged"}));
 											   				//更新最新登陆时间
@@ -150,6 +160,8 @@ router.post('/', function(req, res, next) {
 															  	}
 															  },
 															  function(err,docs){
+															  	if(err) throw err;
+															  	else
 															  	db.close();
 															});
 														}

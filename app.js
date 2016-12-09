@@ -82,7 +82,6 @@ app.set('port', port);
 /**
  * Create HTTP server.
  */
-setTime.clearLoginRecord(config.ctime,config.expires);
 
 var server = http.createServer(app);
 
@@ -95,7 +94,8 @@ server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
 
-
+//定时任务
+setTime.clearLoginRecord(config.ctime,config.expires);
 //socket引入模块
 socket(server);
 /**

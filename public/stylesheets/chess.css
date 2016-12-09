@@ -40,6 +40,7 @@
             font-size:16px;
             cursor:pointer;
             color:#fff;
+            width: 190px;
         }
         #userList li:hover{
             background:rgb(135,205,235);
@@ -104,7 +105,7 @@
             display: inline-block;
             margin-right:5px;
             text-align:right;
-            width:55px;
+            width:60px;
             vertical-align: middle;
             cursor:pointer;
         }
@@ -129,7 +130,7 @@
             font-size:16px;
             font-weight:600;
         }
-        #send,#accept{
+        #send,#accept,#noIdle{
             display:none;
         }
         #tip{
@@ -185,3 +186,16 @@
             top:50%;
             margin-top:-296px;
         }
+        #userList{
+            overflow:hidden;
+        }
+        #userList>div{
+            height:25%;
+            min-height: 90px;
+        }
+        #userList ul{
+            hegiht:75%;
+            width:220px;
+            overflow-x: hidden;
+             overflow-y: auto;
+        } 

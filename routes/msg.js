@@ -5,7 +5,7 @@ var app=express();
 var mongo=require("mongodb");
 var host="localhost";
 var server=new mongo.Server(host,27017,{auto_reconnect:true});//创建数据库所在的服务器服务器
-var db=new mongo.Db("test",server,{safe:true});
+var db=new mongo.Db("node",server,{safe:true});
 
 router.post('/', function(req, res, next) {
 	db.open(function (err,db) {
@@ -32,6 +32,8 @@ router.post('/', function(req, res, next) {
 	    	 				}
 	    	 				res.end(JSON.stringify(stringArr));
 	    	 				collection.updateOne({rel:docs.rel},{$set:{massage:string}},function(err){
+	    	 					if(err) throw err;
+								else
 	    	 					db.close();
 	    	 				});
 	    	 			}else{

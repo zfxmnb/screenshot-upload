@@ -1,14 +1,14 @@
 var express = require('express');
 var router = express.Router();
 var app=express();
-//var macObj = require('getmac');
+
 var sign = require('singleLogin');
-//var os = require('os');
 var config = require('config');
+
 var mongo=require("mongodb");
 var host="localhost";
 var server=new mongo.Server(host,27017,{auto_reconnect:true});//创建数据库所在的服务器服务器
-var db=new mongo.Db("test",server,{safe:true});//创建数据库对象
+var db=new mongo.Db("node",server,{safe:true});//创建数据库对象
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -31,7 +31,7 @@ db.open(function (err,db) {
 			    });
         	}
 			//console.log(Cookies);
-			if(Cookies.username&&Cookies.clientId&&Cookies.tempId){
+			if(Cookies.clientId&&Cookies.clientId!=null&&Cookies.username&&Cookies.username!=null&&Cookies.tempId&&Cookies.tempId!=null){
 		   		collection.findOne({username:Cookies.username,clientId:Cookies.clientId,tempId:Cookies.tempId,ipAddress:ipAddress,userAgent:userAgent},function (err,docs){
 		   			if(err) throw err;
 					else{
@@ -39,14 +39,12 @@ db.open(function (err,db) {
 						if(req.query.target)
 							var Referer=req.query.target;
 						else
-							var Referer="/";
+							var Referer="/chat";
 
 						var domain=req.headers["host"].split(":")[0];
-					   	//var index=config.lawOutside.indexOf(domain);
-						//var cookieDomain=index!=-1?config.lawOutside[index]:"."+domain;
 						var cookieDomain=domain;
 
-						if(docs&&Referer&&(time-parseInt(docs.time))<(config.expires*60000)){
+						if(docs&&(time-parseInt(docs.time))<(config.expires*60000)){
 							res.redirect(Referer);
 			   				collection.updateOne(
 							  {
@@ -98,6 +96,8 @@ router.post('/', function(req, res, next) {
 		   			res.end(JSON.stringify({success:true,msg:"logout"}));
 					collection.remove(
 							{$or:[{username:Cookies.username,ipAddress:ipAddress,userAgent:userAgent},{clientId:Cookies.clientId},{tempId:Cookies.tempId}]},function(err){
+								if(err) throw err;
+								else
 								db.close();
 							}
 						);

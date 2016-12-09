@@ -22,7 +22,7 @@ var chatType,id,name;
          var nickname=$("#nickname").val();
         $("#nickname").change(function(){
             if($(this).val().length<12){
-                $.ajax({url:"/",dataType:"JSON",type:"POST",data:"name="+$(this).val()+"&username="+id,success:function(data){
+                $.ajax({url:"/chat",dataType:"JSON",type:"POST",data:"name="+$(this).val()+"&username="+id,success:function(data){
                         if(data.msg=="ok"){
                         }else{
                             $(this).val(nickname);

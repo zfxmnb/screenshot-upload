@@ -29,6 +29,7 @@
             font-size:16px;
             cursor:pointer;
             color:#fff;
+            width:190px;
         }
         #userList li:hover{
             background:rgb(135,205,235);
@@ -152,7 +153,7 @@
         }
         .chat_submit input{
             width:100%;
-            height:24px;
+            height:26px;
             border:1px solid #fff;
             border-radius:5px;
         }
@@ -165,8 +166,9 @@
             background:rgb(185,255,235);
             border:1px solid #fff;
             border-radius:5px;
-            height:26px;
+            height:28px;
             width:18.5%;
+            margin-left: 0.5%;
             text-align:center;
             line-height: 26px;
             font-size: 16px;
@@ -187,7 +189,7 @@
             display: inline-block;
             margin-right:5px;
             text-align:right;
-            width:55px;
+            width:60px;
             cursor:pointer;
         }
         #tab_title .active{
@@ -263,14 +265,14 @@
             text-decoration: underline;
         }
         .emojiButton{
-            width:26px;
-            height:26px;
-            display: block;
-            position: absolute;
-            background:url(/images/emoji.jpg) no-repeat 0 -5px;
-            right:2px;
-            top:0px;
-            cursor:pointer;
+           width: 24px;
+			height: 24px;
+			display: block;
+			position: absolute;
+			background: url(/images/emoji.jpg) no-repeat -2px -6px;
+			right: 2px;
+			top: 2.5px;
+			cursor: pointer;
         }
         #emojiCon{
             list-style-type: none;
@@ -309,3 +311,16 @@
             color:#000;
             border:1px solid #fff;
         }
+        #userList{
+            overflow:hidden;
+        }
+        #userList>div{
+            height:25%;
+            min-height: 90px;
+        }
+        #userList ul{
+            hegiht:75%;
+            width:220px;
+            overflow-x: hidden;
+             overflow-y: auto;
+        } 
