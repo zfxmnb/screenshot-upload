@@ -1,0 +1,187 @@
+ .canvas_con{
+                width:650px;
+                margin:0 auto;
+            }
+        #canvas{
+            display:block;
+            margin:0 auto;
+            border:1px solid gray;
+            cursor:pointer;
+        }
+        *{
+            margin:0;
+            padding:0;
+            font-family: MicroSoft YaHei;
+            overflow: hidden;
+        }
+        ul{
+            list-style: none;
+        }
+        body{
+            position: absolute;
+            width:100%;
+            height:100%;
+        }
+        #userList{
+            width:200px;
+            height:100%;
+            overflow: auto;
+            float:left;
+            background:rgb(5,155,210);
+        }
+        #userList li{
+            margin:5px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space:nowrap; 
+            text-indent: 1em;
+            line-height:30px;
+            border-radius: 6px;
+            font-size:16px;
+            cursor:pointer;
+            color:#fff;
+        }
+        #userList li:hover{
+            background:rgb(135,205,235);
+        }
+        .chat_container{
+            height:100%;
+            margin-left:200px;
+            background:rgb(245,245,245);
+            overflow: hidden;
+            position: relative;
+        }
+        #bg{
+            position: fixed;
+            width:100%;
+            height:100%;
+            top:0;
+            left:0;
+            background:rgba(50,50,50,0.4);
+            z-index:9;
+            display:none;
+        }
+        #login,#tip{
+            position: fixed;
+            width: 260px;
+            height: 100px;
+            text-align: center;
+            border:1px solid #ccc;
+            border-radius:10px;
+            box-shadow: 0 0 10px gray;
+            top:50%;
+            left:50%;
+            margin-left:-100px;
+            margin-top:-50px;
+            background:#fff;
+            z-index:99;
+        }
+        #login div,#tip div{
+            margin:5px 10px;
+            text-align:center;
+        }
+        #tip p{
+            margin:8px 0;
+        }
+        #login button{
+            border:none;
+            border-radius: 5px;
+            background:rgb(5,155,210);
+            padding:5px 10px;
+            color:#fff;
+            cursor:pointer;
+        }
+        
+        .user_num{
+            color:#fff;
+            text-align:center;
+        }
+        .self{
+            padding: 0.5em;
+            color:#fff;
+        }
+        .self span{
+            display: inline-block;
+            margin-right:5px;
+            text-align:right;
+            width:55px;
+            vertical-align: middle;
+            cursor:pointer;
+        }
+        .me span{
+            display:inline-block;
+            float:right;
+        }
+        .me .text{
+            text-align:right;
+        }
+        .other span{
+            display:inline-block;
+        }
+        .msg{
+            padding:5px 10px;
+            background:rgb(135,205,235);
+            border-radius:10px;
+            max-width: 50%;
+        }
+        .username{
+            padding:5px 10px;
+            font-size:16px;
+            font-weight:600;
+        }
+        #send,#accept{
+            display:none;
+        }
+        #tip{
+            display:none;
+        }
+        #tip button{
+            border:none;
+            border-radius: 5px;
+            background:rgb(5,155,210);
+            padding:5px 10px;
+            color:#fff;
+            cursor:pointer;
+        }
+        #tip .ok{
+            display: none;
+        }
+        .button{
+            text-align: center;
+        }
+        .button button{
+            border:none;
+            padding:6px 12px;
+            margin:5px;
+            background: rgb(5,155,210);
+            color:#fff;
+            border-radius:5px;
+            font-size:16px;
+            cursor:pointer;
+        }
+        .chat_container h3{
+            text-align: center;
+            height:30px;
+            color:rgb(5,155,210);
+        }
+        #nickname{
+            background:rgb(5,155,210);
+            border:none;
+            color: #fff;
+            width: 100px;
+            font-size: 16px;
+        }
+        #nickname:focus{
+            background:#fff;
+            color:#000;
+            border:1px solid #fff;
+        }
+        .controlPos{
+            width:650px;
+            height:590px;
+            position: absolute;
+            left:50%;
+            margin-left:-325px;
+            top:50%;
+            margin-top:-296px;
+        }
