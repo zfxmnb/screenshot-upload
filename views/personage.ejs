@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <style type="text/css">
+        #show{
+            display: none;
+        }
+        #cropBg{
+            position: fixed;
+            left:0;
+            top:0;
+            width:100%;
+            height:100%;
+            background:#333;
+            z-index: 9998;
+        }
+        #cropConatainer{
+            position: fixed;
+            left:50%;
+            top:50%;
+            margin-top:-150px;
+            margin-left:-150px;
+            width:300px;
+            height:300px;
+            background: #fff;
+            z-index: 9999;
+            overflow: hidden;
+        }
+        #cropConatainer img{
+            transition:all 0.2s;
+            -webkit-transition:all 0.2s;
+        }
+        #options{
+            width:300px;
+            height:40px;
+            position: fixed;
+            left:50%;
+            bottom:0;
+            margin-bottom:10px;
+            margin-left:-150px;
+            z-index:9999;
+        }
+        #cutImg{
+            width:145px;
+            height:40px;
+            border:none;
+            border-radius:6px;
+            background:#44b549;
+            font-size: 16px;
+            font-weight: 600;
+            color:#fff;
+            box-shadow: 0 0 5px #44b549;
+            text-shadow: 0 0 5px #fff;
+            cursor:pointer;
+        }
+        #cancel{
+            width:145px;
+            height:40px;
+            border:none;
+            border-radius:6px;
+            background:#aaa;
+            font-size: 16px;
+            font-weight: 600;
+            color:#fff;
+            box-shadow: 0 0 5px #fff;
+            text-shadow: 0 0 5px #fff;
+            cursor:pointer;
+        }
+        #test{
+            color:#fff;
+            position: fixed;
+            left:0;
+            top:0;
+            z-index:19999;
+        }
+    </style>
+</head>
+<body>
+<input type="file" name="" id="upImg" accept="image/png,image/gif,image/jpeg">
+<img src="" id="showimg" alt="">
+<form action="" id="form" method="post">
+    <input type="text" name="imgName1" id="imgName">
+</form>
+<div id="show">
+    <div id="test"></div>
+    <div  id="cropBg"></div>
+    <div id="cropConatainer">
+    </div>
+    <div id="options">
+    <button id="cutImg">裁剪</button>
+    <button id="cancel">取消</button>
+    </div>
+    <canvas height=300 width=300 id="canvas" style="display:none;"></canvas>
+</div>
+    <script type="text/javascript">
+    var _e={};
+    crop();
+    function crop(){
+        var scale=1,width=0,height=0,swidth,sheight,left=0,top=0;
+        var show=id('show');
+        var cropConatainer=id('cropConatainer');
+        var test=id('test');
+        var canvas=id("canvas");
+        //css(canvas,{width:"300px",height:"300px",display:"none"});
+        var ctx=canvas.getContext('2d');
+        id('upImg').onclick=function(){
+        show.style.display="block";
+        }
+        id('upImg').onchange=function(){
+          file=this.files[0];
+          reader.readAsDataURL(file);
+        }
+        id('cutImg').onclick=function(){
+            if(img){
+                //console.log(left+","+top+","+width+","+height)
+                
+                ctx.clearRect(0,0,300,300);
+                ctx.drawImage(img,-left/scale,-top/scale,300/scale,300/scale,0,0,300,300);
+                var imgBase64=canvas.toDataURL("image/png");
+                id("showimg").src=imgBase64;
+                //id("imgData").value=imgBase64;
+                //id("imgName").value="test.png";
+                show.style.display="none";
+                // var boundary="------WebKitFormBoundaryGpN6ZDMq7eHG9fyg"
+                // var data="\r\n"+boundary+"\r\nContent-Disposition:form-data;name:'imgData'\r\n\r\n"+imgBase64+
+                //          "\r\n"+boundary+"\r\nContent-Disposition:form-data;name:'imgName'\r\n\r\n"+id('upImg').value+
+                //          "\r\n"+boundary+"--\r\n";
+                var data="imgData="+encodeURIComponent(imgBase64)+
+                         "&imgName="+id('upImg').value+
+                         "&imgName1="+id('imgName').value;
+
+                // var form=document.forms[0];  
+                // var data = new FormData(form);   //    
+                // data.append("imgName",convertBase64UrlToBlob(imgBase64));
+
+                ajax({
+                    url:"/person",
+                    type:"POST",
+                    async:true,
+                    dataType:"JSON",
+                    data:data,
+                    //contentType:"multipart/form-data;boundary="+boundary,
+                    success:function(data){
+                       
+                    }
+                })
+            }
+        }
+        var reader = new FileReader();
+        reader.onload=function(){
+            if(id("img"))
+             cropConatainer.removeChild(id("img"));
+            var img=new Image();
+            img.src=this.result;
+            img.id="img";
+            img.onload=function(){
+                width=img.width;
+                height=img.height;
+                top=(300-height)/2;
+                left=(300-width)/2;
+                swidth=width;
+                sheight=height;
+                scale=1;
+                css(img,{"position":"absolute","top":top+"px","left":left+"px"});
+                cropConatainer.appendChild(img);
+                var x1,y1,t,l,x2,y2,startl;
+                off(cropConatainer,"touchstart mousedown");
+                on(cropConatainer,"touchstart mousedown",function(event){
+                    event.preventDefault();
+                    event=event.targetTouches?event.targetTouches[0]:event;
+                    x1=event.pageX;y1=event.pageY;
+                    t=img.offsetTop;l=img.offsetLeft;
+                    on(cropConatainer,"touchmove mousemove",function(event){
+                        event.preventDefault();
+                        event=event.targetTouches?event.targetTouches[0]:event;
+                        top=t+event.pageY-y1;
+                        left=l+event.pageX-x1;
+                        css(img,{"top":top+"px","left":left+"px"})
+                    });
+                    one(cropConatainer,"touchend mouseup mouseleave",function(event){
+                        off(cropConatainer,"touchmove mousemove");
+                    })
+                });
+                on(cropConatainer,"touchstart",function(event){
+                    if(event.targetTouches[1]){
+                        event=event.targetTouches[1];
+                        x2=event.pageX;y2=event.pageY;
+                        startl=Math.abs(y2-y1)+Math.abs(x2-x1);
+                        
+                        off(cropConatainer,"touchmove");
+                        on(cropConatainer,"touchmove",function(event){
+                            event.preventDefault();
+                            x1=event.targetTouches[0].pageX;
+                            y1=event.targetTouches[0].pageX;
+                            x2=event.targetTouches[1].pageX;
+                            y2=event.targetTouches[1].pageY;
+                            var centerPointerX=(x2+x1)/2;
+                            var centerPointerY=(y2+y1)/2;
+                            var reall=Math.abs(y2-y1)+Math.abs(x2-x1);
+                            var sscale=scale;
+                            scale=(reall>startl)?(scale*1.02):(scale*0.98);
+                            startl=reall;
+                            if(scale>5)
+                                scale=5;
+                            if(scale<0.1)
+                                scale=0.1;
+                            //test.innerHTML="x2:"+x2+";y2:"+y2+"s:"+scale;
+                            width=scale*swidth;
+                            height=scale*sheight;
+                            left=centerPointerX-(scale/sscale)*(centerPointerX-left);
+                            top=centerPointerY-(scale/sscale)*(centerPointerY-top);
+                            css(img,{"width":width+"px","height":height+"px","top":top+"px","left":left+"px"})
+                        });
+                    }
+                })
+
+                mouseScroll(function(direct,event){
+                    var referenceX=event.offsetX;
+                    var referenceY=event.offsetY;
+                    if(direct==-1){
+                        width=1.1*width;
+                        height=1.1*height;
+                        left=referenceX-1.1*(referenceX-left);
+                        top=referenceY-1.1*(referenceY-top);
+                        scale=scale*1.1;
+                    }else{
+                        width=0.9*width;
+                        height=0.9*height;
+                        left=referenceX-0.9*(referenceX-left);
+                        top=referenceY-0.9*(referenceY-top);
+                        scale=scale*0.9;
+                    }
+                    css(img,{"width":width+"px","height":height+"px","top":top+"px","left":left+"px"})
+                })
+            }
+        }
+        
+    }
+    function convertBase64UrlToBlob(urlData){
+        var bytes=window.atob(urlData.split(',')[1]);        //去掉url的头，并转换为byte    
+        //处理异常,将ascii码小于0的转换为大于0  
+        var ab = new ArrayBuffer(bytes.length);  
+        var ia = new Uint8Array(ab);  
+        for (var i = 0; i < bytes.length; i++) {  
+            ia[i] = bytes.charCodeAt(i);  
+        }  
+        return new Blob( [ab] , {type : 'image/png'});  
+    }  
+    function ajax(conf){
+        var xmlhttp;
+        if (window.XMLHttpRequest)
+        {
+            xmlhttp=new XMLHttpRequest();
+        }else{
+            xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+        }
+        xmlhttp.onreadystatechange=function(){
+            if (xmlhttp.readyState==4 && xmlhttp.status==200){
+                var data=xmlhttp.responseText;
+                if((conf.dataType||"JSON").toUpperCase()=="JSON")
+                    var result=JSON.parse(data);
+                conf.success.call(this,result);
+            }
+        }
+        var type=(conf.type||"GET").toUpperCase();
+        var dataRequest=conf.data||"";
+        var url=(type=="POST")?conf.url:(conf.url+"?"+dataRequest);
+        var dataSend=(type=="POST")?dataRequest:"";
+        xmlhttp.open(type,url,conf.async||true);
+        xmlhttp.setRequestHeader("Content-type",conf.contentType||"application/x-www-form-urlencoded;charset=utf-8 ");
+        xmlhttp.send(dataSend);
+    }
+    function id(id){
+        return ele=document.getElementById(id)||null;
+    }   
+    function cl(c){
+        return ele=document.getElementsByClassName(c)||null;
+    }
+    function css(ele,style){
+        var string=ele.getAttribute("style");
+        for(var x in style){
+            ele.style[x]=style[x];
+            //string+=x+":"+style[x]+";"
+        }
+        //ele.setAttribute("style",string);
+    }
+    function on(ele,ev,callback){
+        var events=ev.split(" ");
+        for(var i=0;i<events.length;i++){
+            ele.addEventListener(events[i],callback);
+            if(_e[events[i]]&&_e[events[i]].length>0){
+                _e[events[i]].push(callback);
+            }else{
+                _e[events[i]]=[];
+                _e[events[i]].push(callback);
+            } 
+        } 
+    }
+    function off(ele,ev){
+        var events=ev.split(" ");
+        for(var i=0;i<events.length;i++){
+            if(_e[events[i]]){
+                for(var j=0;j<_e[events[i]].length;j++){
+                    ele.removeEventListener(events[i],_e[events[i]][j]);
+                }
+                _e[events[i]]=[];
+            }
+        } 
+    }
+    function one(ele,ev,callback){
+        var events=ev.split(" ");
+        var t=true;
+        function hander(event){
+            callback.call(this,event);
+            for(var i=0;i<events.length;i++){
+                 ele.removeEventListener(events[i],hander);
+            }
+        }
+        for(var i=0;i<events.length;i++){
+            ele.addEventListener(events[i],hander);
+        } 
+    }
+    function mouseScroll(callback){
+        function scrollHander(event){
+            var direction= event.detail && (event.detail > 0 ? 1 : -1);
+            callback.call(this,direction,event);
+        }
+        off(document.body,"DOMMouseScroll");
+        on(document.body,"DOMMouseScroll", scrollHander);
+        //chrome and ie
+        document.body.onmousewheel = function (event) {
+            event = event || window.event;
+            var direction = event.wheelDelta && (event.wheelDelta > 0 ? -1 : 1);
+            callback.call(this,direction,event)
+        };
+    }
+    </script>
+</body>
+</html>

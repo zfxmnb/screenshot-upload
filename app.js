@@ -10,11 +10,8 @@ var setTime = require('settime');
 var socket= require('socketCode');
 
 var index = require('./routes/index');
-var login = require('./routes/login');
-var sign = require('./routes/sign');
-var chat = require('./routes/chat');
-var msg = require('./routes/msg');
-var chess = require('./routes/chess');
+var broad = require('./routes/broad');
+var personage =  require('./routes/personage');
 
 var app = express();
 
@@ -31,12 +28,9 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', index);
-app.use('/index', index);
-app.use('/login', login);
-app.use('/sign', sign);
-app.use('/chat', chat);
-app.use('/msg', msg);
-app.use('/chess', chess);
+app.use('/broad', broad);
+app.use('/person',personage);
+
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   var err = new Error('Not Found');
@@ -76,7 +70,7 @@ var http = require('http');
  * Get port from environment and store in Express.
  */
 
-var port = normalizePort(process.env.PORT || '8080');
+var port = normalizePort(process.env.PORT || '80');
 app.set('port', port);
 
 /**
